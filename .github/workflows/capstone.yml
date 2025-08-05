@@ -1,0 +1,28 @@
+name: Capstone CI/CD
+
+on: [push]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Lint Backup Script
+      run: shellcheck backup/search_backup.sh
+
+    - name: Build Docker Images
+      run: docker-compose build
+
+    - name: Deploy on VM
+      run: |
+        ssh user@staging "cd project && docker-compose pull && docker-compose up -d"
+
+    - name: Test Endpoints
+      run: |
+        curl http://localhost:8000/tasks
+        curl http://localhost:8080/backups/
+
+
+

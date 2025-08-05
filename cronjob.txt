@@ -1,0 +1,1 @@
+0 1 * * * docker exec team-capstone_backup_1 /scripts/search_backup.sh -d /data -i -r

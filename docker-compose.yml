@@ -1,0 +1,42 @@
+version: '3.8'
+
+# Defines and runs the 3 services:
+services:
+# app -> FastAPI app
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+# db -> PostgreSQL database
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tasks_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+# backup -> cron-based auto DB backups
+  backup:
+    build:
+      context: ./backup
+      dockerfile: Dockerfile
+    volumes:
+      - db_data:/data
+      - ./backups:/backups
+
+
+# Mounts volumes
+volumes:
+  db_data:
+
+
+
+
