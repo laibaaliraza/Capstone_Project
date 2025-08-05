@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+*.db
+.env
+*.log
+*.sqlite3
+*.bak
+*.tar
+*.zip
+backups/
+data/
