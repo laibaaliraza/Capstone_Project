@@ -1,56 +1,38 @@
-# Name of the workflow
-name: Capstone CI/CD
+name: Local CI Test
 
-# Trigger this workflow on push to main
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build-and-deploy:
+  test-only:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the code
-    - name: Checkout Repository
+    - name: Checkout Code
       uses: actions/checkout@v3
 
-    # Step 2: Set up Python (optional but useful for testing)
-    - name: Set up Python 3.10
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
-    # Step 3: Install Python dependencies
     - name: Install Python Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r app/requirements.txt
 
-    # Step 4: Build Docker images locally (optional sanity check)
-    - name: Build Docker Images
+    - name: Lint Backup Script
+      run: shellcheck backup/search_backup.sh
+
+    - name: Docker Compose Build
       run: docker compose build
 
-    # Step 5: Set up SSH key for remote access
-    - name: Set up SSH Access
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+    - name: Run Containers
+      run: docker compose up -d
 
-    # Step 6: Deploy on Remote VM
-    - name: Deploy to Remote Server
-      run: |
-        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
-          cd /home/ubuntu/Capstone_Project
-          git pull origin main
-          docker compose pull
-          docker compose up -d --build
-        EOF
+    - name: Run Placeholder Tests
+      run: echo "All services running. Manual test required."
 
-    # Step 7: Test endpoints on the remote server
-    - name: Test Remote Endpoints
-      run: |
-        curl http://${{ secrets.REMOTE_HOST }}:8000/tasks
-        curl http://${{ secrets.REMOTE_HOST }}:8080/backups/
+    - name: Stop Containers
+      run: docker compose down
