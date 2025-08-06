@@ -1,6 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
+sqlalchemy
 psycopg2-binary
-asyncpg
-
-#all required Python packages (like fastapi, uvicorn, asyncpg, etc.)
+python-dotenv

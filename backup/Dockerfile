@@ -1,11 +1,21 @@
-
-#Builds a minimal Alpine container
+# Use Alpine base image
 FROM alpine
-RUN apk add bash git
-# Copies backup.sh 
-COPY search_backup.sh /scripts/search_backup.sh
-# Sets it to run on container start.
+
+# Install necessary packages
+RUN apk update && apk add --no-cache bash curl git tzdata postgresql-client cron
+
+# Set working directory
+WORKDIR /scripts
+
+# Copy backup script and cron job
+COPY ../scripts/search_backup.sh .
+COPY ../scripts/cronjob /etc/crontabs/root
+
+# Make script executable
 RUN chmod +x /scripts/search_backup.sh
-CMD ["tail", "-f", "/dev/null"]
 
+# Set timezone if needed (optional)
+ENV TZ=Asia/Karachi
 
+# Start cron in foreground (this is important!)
+CMD [ "crond", "-1", "2", "-f" ]

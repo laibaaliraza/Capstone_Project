@@ -1,0 +1,21 @@
+FROM ubuntu:20.04
+
+# Non-interactive mode for apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install postgresql client and cron
+RUN apt-get update && \
+    apt-get install -y postgresql-client cron && \
+    apt-get clean
+
+# Copy your backup script
+COPY scripts/search_backup.sh /scripts/search_backup.sh
+RUN chmod +x /scripts/search_backup.sh
+
+# Copy the cron job definition
+COPY scripts/cronjob /etc/cron.d/backup-cron
+RUN chmod 0644 /etc/cron.d/backup-cron && \
+    crontab /etc/cron.d/backup-cron
+
+# Run cron in foreground
+CMD ["cron", "-f"]
