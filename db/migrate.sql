@@ -1,2 +1,2 @@
--- Add a new column 'due_date' of type DATE to the 'tasks' table
+-- Add a new column (date) of type DATE to the table (tasks)
 ALTER TABLE tasks ADD COLUMN date DATE;
