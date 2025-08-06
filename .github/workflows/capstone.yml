@@ -6,27 +6,26 @@ on: [push]
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest  # Use latest Ubuntu runner
+    runs-on: ubuntu-latest
 
     steps:
-    # Clone the repo to the runner
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v2
 
-    # Lint the backup script using shellcheck for syntax and best practices
     - name: Lint Backup Script
       run: shellcheck backup/search_backup.sh
 
-    # Build Docker images as defined in docker-compose.yml
     - name: Build Docker Images
       run: docker compose build
 
-    # SSH into the remote VM and deploy the updated containers
-    - name: Deploy on VM
+    - name: Setup SSH and Deploy to VM
       run: |
-        ssh user@staging "cd project && docker compose pull && docker compose up -d"
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "cd project && docker compose pull && docker compose up -d"
 
-    # Test if both the API and backup server endpoints are working
     - name: Test Endpoints
       run: |
         curl http://localhost:8000/tasks
