@@ -1,4 +1,4 @@
-#name of github workflow
+# Name of GitHub workflow
 name: Capstone CI/CD
 
 # Trigger this workflow on every push to the repository
@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest  # Use latest Ubuntu runner
 
     steps:
-    # clone the repo to runner
+    # Clone the repo to the runner
     - name: Checkout
       uses: actions/checkout@v2
 
@@ -19,12 +19,12 @@ jobs:
 
     # Build Docker images as defined in docker-compose.yml
     - name: Build Docker Images
-      run: docker-compose build
+      run: docker compose build
 
     # SSH into the remote VM and deploy the updated containers
     - name: Deploy on VM
       run: |
-        ssh user@staging "cd project && docker-compose pull && docker-compose up -d"
+        ssh user@staging "cd project && docker compose pull && docker compose up -d"
 
     # Test if both the API and backup server endpoints are working
     - name: Test Endpoints
