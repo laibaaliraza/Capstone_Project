@@ -14,7 +14,7 @@ DATE=$(date +%Y%m%d)
 DEST="$DATA/incremental-$DATE"
 mkdir -p "$DEST"
 #Connects to PostgreSQL.
-cp -r /var/lib/postgresql/data/* "$DEST"
+rsync -a --delete /var/lib/postgresql/data/* "$DEST"
 #Saves output as a .sql file inside /backups and return backup complete msg
 echo "Backup completed at $DEST"
 

@@ -1,28 +1,33 @@
+#name of github workflow
 name: Capstone CI/CD
 
+# Trigger this workflow on every push to the repository
 on: [push]
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use latest Ubuntu runner
+
     steps:
+    # clone the repo to runner
     - name: Checkout
       uses: actions/checkout@v2
 
+    # Lint the backup script using shellcheck for syntax and best practices
     - name: Lint Backup Script
       run: shellcheck backup/search_backup.sh
 
+    # Build Docker images as defined in docker-compose.yml
     - name: Build Docker Images
       run: docker-compose build
 
+    # SSH into the remote VM and deploy the updated containers
     - name: Deploy on VM
       run: |
         ssh user@staging "cd project && docker-compose pull && docker-compose up -d"
 
+    # Test if both the API and backup server endpoints are working
     - name: Test Endpoints
       run: |
         curl http://localhost:8000/tasks
         curl http://localhost:8080/backups/
-
-
-

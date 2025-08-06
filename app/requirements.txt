@@ -3,4 +3,4 @@ uvicorn
 psycopg2-binary
 asyncpg
 
-#all required Python packages (like fastapi, uvicorn, asyncpg, etc.).
+#all required Python packages (like fastapi, uvicorn, asyncpg, etc.)

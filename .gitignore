@@ -1,9 +1,18 @@
-venv/
+# Python cache files
 __pycache__/
 *.pyc
-*.db
+
+# Virtual environment
+venv/
+
+# Environment variables
 .env
+
+# Log files
 *.log
+
+# Database and backup files
+*.db
 *.sqlite3
 *.bak
 *.tar
