@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: capstone_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - capstone_net
+
+  app:
+    build:
+      context: ./app
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db/capstone_db
+    networks:
+      - capstone_net
+    expose:
+      - "8000"
+
+  backup:
+    build:
+      context: .
+      dockerfile: backup/Dockerfile
+
+
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
+    networks:
+      - capstone_net
+
+volumes:
+  postgres_data:
+
+networks:
+  capstone_net:
