@@ -24,12 +24,11 @@ services:
       - capstone_net
     expose:
       - "8000"
-
   backup:
     build:
-      context: .
-      dockerfile: backup/Dockerfile
-
+      context: ./backup
+      dockerfile: Dockerfile
+    container_name: backup_service
 
   nginx:
     image: nginx
