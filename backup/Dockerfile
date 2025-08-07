@@ -7,15 +7,15 @@ RUN apk update && apk add --no-cache bash curl git tzdata postgresql-client cron
 # Set working directory
 WORKDIR /scripts
 
-# Copy backup script and cron job
-COPY ../scripts/search_backup.sh .
-COPY ../scripts/cronjob /etc/crontabs/root
+# Copy backup script and cron job from local context
+COPY backup/search_backup.sh .
+COPY backup/cronjob /etc/crontabs/root
 
-# Make script executable
+# Make the script executable
 RUN chmod +x /scripts/search_backup.sh
 
-# Set timezone if needed (optional)
+# Set timezone (optional)
 ENV TZ=Asia/Karachi
 
-# Start cron in foreground (this is important!)
-CMD [ "crond", "-1", "2", "-f" ]
+# Start cron in the foreground
+CMD ["crond", "-f"]
