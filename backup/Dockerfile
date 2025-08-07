@@ -1,19 +1,16 @@
-FROM alpine:latest
+FROM alpine:3.20
 
-# Install necessary packages (replace 'cron' with 'dcron')
-RUN apk update && apk add --no-cache bash curl git tzdata postgresql-client dcron
+# Only the tools you really need
+RUN apk add --no-cache bash tzdata postgresql-client dcron
 
-# Set working directory
 WORKDIR /backup
 
-# Copy backup script
+# Backup script
 COPY backup.sh /backup/backup.sh
-
-# Make the script executable
 RUN chmod +x /backup/backup.sh
 
-# Copy crontab file
+# Root’s crontab – one full dump every night at 03:00
 COPY crontab.txt /etc/crontabs/root
 
-# Start the cron daemon
-CMD ["sh", "-c", "crond -f"]
+# Run cron in foreground (PID 1)
+ENTRYPOINT ["crond","-f","-l","8"]
