@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import team_capstone
+from  app.routers import team_capstone
 from .database import engine
 from . import models
 

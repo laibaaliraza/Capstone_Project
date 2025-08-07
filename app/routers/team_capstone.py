@@ -1,14 +1,31 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from .. import models, schemas, database
+from fastapi import APIRouter
+from pydantic import BaseModel
+from typing import List
 
-router = APIRouter()
-get_db = database.get_db
+router = APIRouter(
+    prefix="/team_capstone",
+    tags=["Team Capstone"]
+)
 
-@router.post("/", response_model=schemas.TeamCapstone)
-def create_team_capstone(request: schemas.TeamCapstoneCreate, db: Session = Depends(get_db)):
-    new_entry = models.TeamCapstone(title=request.title, description=request.description)
-    db.add(new_entry)
-    db.commit()
-    db.refresh(new_entry)
-    return new_entry
+# Example schema
+class TeamMember(BaseModel):
+    name: str
+    role: str
+    email: str
+
+# Dummy database (in-memory list for example)
+team_members = [
+    {"name": "Laiba", "role": "DevOps Engineer", "email": "laiba@example.com"},
+    {"name": "Ahmed", "role": "Backend Developer", "email": "ahmed@example.com"}
+]
+
+# GET endpoint to return all team members
+@router.get("/", response_model=List[TeamMember])
+async def get_team_members():
+    return team_members
+
+# POST endpoint to add a new team member
+@router.post("/", response_model=TeamMember)
+async def add_team_member(member: TeamMember):
+    team_members.append(member.dict())
+    return member
