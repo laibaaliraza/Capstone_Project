@@ -1,21 +1,19 @@
-# Use Alpine base image
-FROM alpine
+FROM alpine:latest
 
-# Install necessary packages
-RUN apk update && apk add --no-cache bash curl git tzdata postgresql-client cron
+# Install necessary packages (replace 'cron' with 'dcron')
+RUN apk update && apk add --no-cache bash curl git tzdata postgresql-client dcron
 
 # Set working directory
-WORKDIR /scripts
+WORKDIR /backup
 
-# Copy backup script and cron job from local context
-COPY backup/search_backup.sh .
-COPY backup/cronjob /etc/crontabs/root
+# Copy backup script
+COPY backup.sh /backup/backup.sh
 
 # Make the script executable
-RUN chmod +x /scripts/search_backup.sh
+RUN chmod +x /backup/backup.sh
 
-# Set timezone (optional)
-ENV TZ=Asia/Karachi
+# Copy crontab file
+COPY crontab.txt /etc/crontabs/root
 
-# Start cron in the foreground
-CMD ["crond", "-f"]
+# Start the cron daemon
+CMD ["sh", "-c", "crond -f"]
