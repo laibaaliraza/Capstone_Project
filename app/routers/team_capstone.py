@@ -1,31 +1,26 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
-from typing import List
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.models.team_capstone import TeamCapstone
+from app.schemas.team_capstone import TeamCapstoneCreate, TeamCapstoneResponse
+from app.database import SessionLocal
 
-router = APIRouter(
-    prefix="/team_capstone",
-    tags=["Team Capstone"]
-)
+router = APIRouter()
 
-# Example schema
-class TeamMember(BaseModel):
-    name: str
-    role: str
-    email: str
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-# Dummy database (in-memory list for example)
-team_members = [
-    {"name": "Laiba", "role": "DevOps Engineer", "email": "laiba@example.com"},
-    {"name": "Ahmed", "role": "Backend Developer", "email": "ahmed@example.com"}
-]
+@router.post("/tasks/", response_model=TeamCapstoneResponse)
+def create_task(task: TeamCapstoneCreate, db: Session = Depends(get_db)):
+    db_task = TeamCapstone(**task.dict())
+    db.add(db_task)
+    db.commit()
+    db.refresh(db_task)
+    return db_task
 
-# GET endpoint to return all team members
-@router.get("/", response_model=List[TeamMember])
-async def get_team_members():
-    return team_members
-
-# POST endpoint to add a new team member
-@router.post("/", response_model=TeamMember)
-async def add_team_member(member: TeamMember):
-    team_members.append(member.dict())
-    return member
+@router.get("/tasks/", response_model=list[TeamCapstoneResponse])
+def read_tasks(db: Session = Depends(get_db)):
+    return db.query(TeamCapstone).all()

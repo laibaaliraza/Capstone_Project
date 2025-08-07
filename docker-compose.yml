@@ -3,35 +3,32 @@ version: '3.8'
 services:
   db:
     image: postgres
-    restart: always
+    container_name: postgres_db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: capstone_db
+      POSTGRES_DB: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - capstone_net
+    ports:
+      - "5432:5432"
+
 
   app:
-    build:
-      context: ./app
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db/capstone_db
-    networks:
-      - capstone_net
-    expose:
-      - "8000"
-  backup:
-    build:
-      context: ./backup
-      dockerfile: Dockerfile
-    container_name: backup_service
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+    volumes:
+      - ./app:/app/app
+    restart: unless-stopped
 
   nginx:
-    image: nginx
+    image: nginx:alpine
     ports:
       - "80:80"
     volumes:
@@ -46,3 +43,4 @@ volumes:
 
 networks:
   capstone_net:
+
