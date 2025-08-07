@@ -1,5 +1,5 @@
 version: '3.8'
-
+#seevices are db,app,backup&nginx
 services:
   db:
     image: postgres
